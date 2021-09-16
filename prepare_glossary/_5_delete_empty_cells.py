@@ -12,3 +12,6 @@ for rowNum in range(work_sheet.max_row, 1, -1):
     if work_sheet.cell(row=rowNum, column=2).value is None:
         print("hop")
         work_sheet.delete_rows(rowNum)
+
+
+#again
