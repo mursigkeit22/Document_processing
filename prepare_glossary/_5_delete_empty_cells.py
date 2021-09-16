@@ -14,4 +14,3 @@ for rowNum in range(work_sheet.max_row, 1, -1):
         work_sheet.delete_rows(rowNum)
 
 
-#again
