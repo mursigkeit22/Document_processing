@@ -252,5 +252,7 @@ new_templates/
 templates/
 documents_excel/
 new_docs/
+excel_docs/
+ready_excel_docs/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm

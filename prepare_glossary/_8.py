@@ -1,9 +1,7 @@
 from openpyxl import load_workbook
 
 
-# workbook = load_workbook(filename="./excel_docs/English - Russian Technical Language (Р.B_Chevron)_after_script.xlsx")
-#
-# sheet_glossary = workbook["Glossary"]
+
 workbook = load_workbook(filename="./excel_docs/test.xlsx")
 sheet_glossary = workbook["Лист1"]
 

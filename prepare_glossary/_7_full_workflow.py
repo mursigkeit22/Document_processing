@@ -39,9 +39,9 @@ for cell in sheet_glossary["A"]:
             cell.value = re.sub(re.escape(found_sequence), "| " + only_letters, cell.value)
 
 # - итерируемся по колонке А, скобочки из конца строки переносим в Notes
-move_comments_to_notes(sheet_glossary, "A", "C", check_english_column)
+move_comments_to_notes_with_check(sheet_glossary, "A", "C", check_english_column)
 #- итерируемся по колонке Б, скобочки в конце переносим в Notes
-move_comments_to_notes(sheet_glossary, "B", "D", check_russian_column)
+move_comments_to_notes_with_check(sheet_glossary, "B", "D", check_russian_column)
 
 
 sheet_abbreviations = workbook["Abbreviations"]
@@ -50,17 +50,17 @@ delete_raw_with_empty_cell(sheet_abbreviations, 4)
 # - итерируемся по колонке B снизу вверх, удаляем строки, где есть пустые ячейки
 delete_raw_with_empty_cell(sheet_abbreviations, 2)
 #  - итерируемся по колонке Б, скобочки из конца строки переносим в Notes
-move_comments_to_notes(sheet_abbreviations, "B", "E", check_english_column)
+move_comments_to_notes_with_check(sheet_abbreviations, "B", "E", check_english_column)
 #  - итерируемся по колонке Д, скобочки в конце переносим в Notes
-move_comments_to_notes(sheet_abbreviations, "D", "F", check_russian_column)
+move_comments_to_notes_with_check(sheet_abbreviations, "D", "F", check_russian_column)
 
 
 sheet_document_types = workbook["Document Types"]
 # - итерируемся по колонке C снизу вверх, удаляем строки, где есть пустые ячейки
 delete_raw_with_empty_cell(sheet_document_types, 3)
 # - итерируемся по колонке Б, скобочки из конца строки переносим в Notes
-move_comments_to_notes(sheet_document_types, "B", "D", check_english_column)
+move_comments_to_notes_with_check(sheet_document_types, "B", "D", check_english_column)
 #  - итерируемся по колонке С, скобочки в конце переносим в Notes
-move_comments_to_notes(sheet_document_types, "C", "E", check_russian_column)
+move_comments_to_notes_with_check(sheet_document_types, "C", "E", check_russian_column)
 
 workbook.save("./ready_excel_docs/done.xlsx")
