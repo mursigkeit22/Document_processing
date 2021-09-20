@@ -19,6 +19,6 @@ for cell in work_sheet["A"]:
             only_letters = re.search("[A-Z]{2,}", found_sequence).group(0)
             cell.value = re.sub(re.escape(found_sequence), "| " + only_letters, cell.value)
 
-#comments in parentheses at the end of the sell
+#comments in parentheses at the end of the сell
 
 workbook.save("./new_docs/test_python.xlsx")
