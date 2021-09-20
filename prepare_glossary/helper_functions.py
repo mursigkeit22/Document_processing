@@ -1,12 +1,10 @@
 import re
 
 
-def delete_raw_with_empty_cell(work_sheet, column_num):  # TODO: check if it works with first raw!
+def delete_raw_with_empty_cell(work_sheet, column_num):
     """ Column numbers are 1, 2, 3 ... Not 0, 1, 2, 3!!!"""
     for rowNum in range(work_sheet.max_row, 0, -1):
-        # print(work_sheet.cell(row=rowNum, column=2))
         if work_sheet.cell(row=rowNum, column=column_num).value is None:
-            # print("hop")
             work_sheet.delete_rows(rowNum)
 
 
@@ -64,6 +62,9 @@ def move_comments_to_notes(sheet, column_letter_from, column_letter_to):
 
 
 def move_comments_to_notes_safe(sheet, column_letter_from, column_letter_to, ):
+    """
+    переносит комменты вместе со скобками в указанный столбец путем конкатенирования с уже имеющимся там текстом
+    """
     for cell in sheet[column_letter_from]:
 
         if cell.value.strip().endswith(")") and "(" in cell.value:
@@ -93,3 +94,20 @@ def find_abbr_in_parentheses_end(value):
     search_result_end = re.search(pattern_ru_and_eng_end, value)
     if search_result_end:
         return search_result_end.group(0)
+
+
+def change_cell_abbr_parentheses(sheet, column_letter):
+    """
+    находим аббревиатуры в круглых скобках в конце и в начале предложения - заменяем на " | " + аббр"""
+    try:
+        for cell in sheet[column_letter]:
+            cell.value = str(cell.value).strip()
+
+            abbr_begin = find_abbr_in_parentheses_begin(cell.value)
+            if abbr_begin:
+                cell.value = re.sub(re.escape(abbr_begin), abbr_begin[1:-1] + " | ", cell.value)
+            abbr_end = find_abbr_in_parentheses_end(cell.value)
+            if abbr_end:
+                cell.value = re.sub(re.escape(abbr_end), " | " + abbr_end[1:-1], cell.value)
+    except (AttributeError, TypeError) as ex:
+        print(ex, cell, cell.value)
