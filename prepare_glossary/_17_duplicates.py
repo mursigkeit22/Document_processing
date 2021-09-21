@@ -1,5 +1,7 @@
 from openpyxl import load_workbook, Workbook
 
+from prepare_glossary.helper_functions import delete_raw_with_empty_cell
+
 """ 
 колонки в доках должны быть English, Russian, Notes1, Notes2
 
@@ -8,30 +10,49 @@ from openpyxl import load_workbook, Workbook
     [0 English, 1 Russian, 2 Notes1, 3 Notes2],
     ...
     ]
+    В готовой ТБ нужно будет убрать карточки English-Russian
 """
 
-workbook = load_workbook(filename="./excel_docs/_6_Downstream General TB_CONCAT.xlsx")
+workbook = load_workbook(filename="./excel_docs/KTK_Prepared_full.xlsx")
 
-# get data sorted
+#  вытаскиваем данные из всех листов, записываем в список.
+#  при этом удаляем пустые строки и проверяем,
+#  чтобы не осталось Notes, в которых только пробелы
+
 data = []
 
 for sheet in workbook.worksheets:
+
+    delete_raw_with_empty_cell(sheet, 1)
+    delete_raw_with_empty_cell(sheet, 2)
     for row in sheet.iter_rows():
         temp_list = [cell.value for cell in row][:4]
+        if temp_list[2]:
+            if len(temp_list[2].strip()) < 1:
+                temp_list[2] = None
+        if temp_list[3]:
+            if len(temp_list[3].strip()) < 1:
+                temp_list[3] = None
         data.append(temp_list)
-# clean from spaces
+
+print("finished iteration.")
+print("Starting data length: ", len(data))
+# чистим графу с английским от пробельных знаков, чтобы сортировалось правильно
 for el in data:
     el[0] = el[0].strip()
-data.sort()
-print(len(data))
+
+# сортируем только по элементу с английским, не учитывая регистр
+print("Full_sort_started")
+data.sort(key=lambda x: x[0].casefold())
+
+# дальше работаем только со строками, в которых нет Notes
+# (чтобы комментарии относились только к тем строкам, к которым относились изначально)
 
 data_with_notes = [x for x in data if x[2] or x[3]]
-print(len(data_with_notes))
+print("data_with_notes: ", len(data_with_notes))
 data_without_notes = [x for x in data if not x[2] and not x[3]]
-print(len(data_without_notes))
+print("data_without_notes: ", len(data_without_notes))
 
-# чистим от пустых строк
-data_without_notes = [x for x in data_without_notes if x[0] and x[1]]
 
 # соединяем дубликаты
 i = 0
@@ -53,7 +74,6 @@ while i < len(data_without_notes) - 1:
     i += 1
 # удаляем пустые строки, образовавшиеся на месте дубликатов
 data_without_notes = [x for x in data_without_notes if len(x) > 1]
-
 
 # чистим от повторяющихся элементов внутри языков
 ready_data = []
@@ -86,7 +106,7 @@ while i < len(data_without_notes):
     i += 1
 
 ready_data = ready_data + data_with_notes
-
+print("len(ready_data): ", len(ready_data))
 
 # записываем в файл
 new_wb = Workbook()
@@ -95,5 +115,4 @@ ws = new_wb.active
 for row in ready_data:
     ws.append(row)
 
-
-new_wb.save("./ready_excel_docs/done_6_Downstream General TB_CONCAT.xlsx")
+new_wb.save("./ready_excel_docs/done_KTK_Prepared_full.xlsx")
