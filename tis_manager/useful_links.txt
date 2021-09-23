@@ -1,0 +1,11 @@
+https://lxml.de/api/lxml.etree._Element-class.html#addnext
+
+https://lxml.de/tutorial.html
+
+https://www.w3schools.com/xml/xpath_syntax.asp
+
+https://stackoverflow.com/questions/38210905/iterate-through-table-of-contents-in-docx-using-python-docx
+
+https://stackoverflow.com/questions/31974733/using-python-docxs-document-method/32108705#32108705
+
+https://stackoverflow.com/questions/55885498/attribute-error-with-docx-document-no-attribute-xpath
