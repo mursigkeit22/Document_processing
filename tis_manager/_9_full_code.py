@@ -2,7 +2,8 @@ import docx
 from docx import *
 
 document = Document('./text/full.docx')
-sections = document._element.xpath('//w:sectPr')
+sections_list = document._element.xpath('//w:sectPr')
+elements_list = document._element.xpath('//w:r')
 
 WPML_URI = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 ODML_URI = '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}'
@@ -33,15 +34,8 @@ def get_ids_headers_footers(sections):
     return id_list
 
 
-header_footer_ids = get_ids_headers_footers(sections)
-
-for id in header_footer_ids:
-    """ вытаскиваем xml с колонтитулами по его id"""
-
-    work = document.sections_list._document_part.rels[id].target_part.element
-
-    temp = work.xpath('//w:r')
-    for element in temp:
+def hide_not_highlighted_text(elements):
+    for element in elements:
         try:
             rprs = element.findall(tag_rPr)
             if len(rprs) == 0:
@@ -54,7 +48,22 @@ for id in header_footer_ids:
                 high = rPr.findall(tag_highlight)
                 if len(high) == 0:
                     rPr.append(docx.oxml.shared.OxmlElement('w:vanish'))
+
         except AttributeError:  # when there is no text
             pass
 
-document.save('./text/result_footers.docx')
+
+# скрываем невыделенный текст везде кроме колонтитулов
+hide_not_highlighted_text(elements_list)
+
+header_footer_ids = get_ids_headers_footers(sections_list)
+
+for id in header_footer_ids:
+    """ вытаскиваем xml с колонтитулами по его id"""
+
+    header_or_footer_element = document.sections._document_part.rels[id].target_part.element
+
+    h_f_elements = header_or_footer_element.xpath('//w:r')
+    hide_not_highlighted_text(h_f_elements)
+
+document.save('./text/result.docx')

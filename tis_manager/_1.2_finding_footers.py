@@ -36,7 +36,7 @@ def get_ids_headers_footers(sections):
 header_footer_ids = get_ids_headers_footers(sections)
 
 for id in header_footer_ids:
-    print(document.sections._document_part.rels[id].target_part.element.xml)
+    print(document.sections_list._document_part.rels[id].target_part.element.xml)
     print()
 
 
@@ -45,10 +45,10 @@ for id in header_footer_ids:
 
 print(document._element.xml)
 print("==================================")
-print(document.sections._document_part.rels['rId7'].target_part.element.xml) #<docx.opc.rel._Relationship object at 0x0000025AA156D460>
+print(document.sections_list._document_part.rels['rId7'].target_part.element.xml) #<docx.opc.rel._Relationship object at 0x0000025AA156D460>
 print("==================================")
 
-print(document.sections._document_part.rels['rId9'].target_part.element.xml) #<docx.opc.rel._Relationship object at 0x0000025AA156D460>
+print(document.sections_list._document_part.rels['rId9'].target_part.element.xml) #<docx.opc.rel._Relationship object at 0x0000025AA156D460>
 print("==================================")
 # #
-print(document.sections._document_part.rels['rId11'].target_part.element.xml) #<docx.opc.rel._Relationship object at 0x0000025AA156D460>
+print(document.sections_list._document_part.rels['rId11'].target_part.element.xml) #<docx.opc.rel._Relationship object at 0x0000025AA156D460>
