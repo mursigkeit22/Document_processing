@@ -50,6 +50,7 @@ for element in temp:
         print("rprs", rprs)
         if len(rprs) == 0:
             tag_text = element.find(tag_t)
+            print("tag_text", tag_text)
             rpr = docx.oxml.shared.OxmlElement('w:rPr')
             rpr.append(docx.oxml.shared.OxmlElement('w:vanish'))
             tag_text.addprevious(rpr)
@@ -61,7 +62,7 @@ for element in temp:
     except AttributeError:  # when there is no text
         pass
 
-# document.save('./text/result_footers.docx')
+document.save('./text/result_footers.docx')
 # print(temp)
 
 
