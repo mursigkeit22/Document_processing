@@ -4,6 +4,10 @@ import docx
 document = Document('./text/full.docx')
 
 elements = document._element.xpath('//w:r')
+"""
+//	Selects nodes in the document from the current node 
+that match the selection no matter where they are
+"""
 WPML_URI = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 tag_rPr = WPML_URI + 'rPr'
 tag_highlight = WPML_URI + 'highlight'
