@@ -24,8 +24,7 @@ for element in elements:
             if len(high) == 0:
                 rPr.append(docx.oxml.shared.OxmlElement('w:vanish'))
 
-    except AttributeError:
+    except AttributeError:  # when there is no text
         pass
 
 document.save('./text/result_xml.docx')
-# print(elements[-2].xml)
