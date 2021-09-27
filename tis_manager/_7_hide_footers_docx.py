@@ -3,9 +3,6 @@ https://python-docx.readthedocs.io/en/latest/api/section.html#sections-objects
 """
 from docx import *
 
-"""
-нет доступа к боковым колонтитулам
-"""
 
 document = Document('./text/full.docx')
 
@@ -24,7 +21,7 @@ def iterate_footer_header(footer_or_header):
                 run.font.hidden = True
 
 
-for section in document.sections_list:
+for section in document.sections:
 
     footers_and_headers = (section.footer, section.even_page_footer, section.first_page_footer,
                            section.header, section.even_page_header, section.first_page_header)

@@ -1,3 +1,7 @@
+"""
+не скрывает автоматически сгенерированное содержание
+"""
+
 from docx import *
 
 document = Document('./text/full.docx')

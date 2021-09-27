@@ -1,69 +1,88 @@
+"""
+<rPr> Structured Document Tag End Character Run Properties
+The <rPr> elements under the tag's properties specify that
+this structured document tag specifies that its start character
+shall have formatting in the character style UserName,
+ and that the end character shall have the formatting in the character style UserName
+  as well as bold and italic direct formatting.
+
+<pPr> (Text Paragraph Properties)
+This element contains all paragraph level text properties for the containing paragraph.
+These paragraph properties should override any and all conflicting properties
+that are associated with the paragraph in question.
+"""
+
 import docx
 from docx import *
 
 document = Document('./text/full.docx')
-sections_list = document._element.xpath('//w:sectPr')
+# текст документа
 elements_list = document._element.xpath('//w:r')
+# разделы документа (в которых задаются колонтитулы и прочие атрибуты, применяемые ко всему разделу)
+sections_list = document._element.xpath('//w:sectPr')
 
 WPML_URI = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 ODML_URI = '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}'
-tag_f = WPML_URI + 'ftr'
-tag_id = ODML_URI + 'id'
 tag_rPr = WPML_URI + 'rPr'
 tag_r = WPML_URI + 'r'
 tag_highlight = WPML_URI + 'highlight'
-tag_t = WPML_URI + 't'
+tag_t = WPML_URI + 't'  #
 tag_vanish = WPML_URI + 'vanish'
 
 
-def get_ids_headers_footers(sections):
-    """ по идее, там 3 headers и 3 footers (четный, нечетный и для первого листа).
-     Боковые колонтитулы спрятаны в headers (не знаю, всегда или нет).
-     Из каждого колонтитула забираем его id, по которому ниже сможем вытащить xml с ним"""
-    id_list = []
-
-    for section in sections:
-        header_ref_with_id = section.xpath('//w:headerReference')
-        footer_ref_with_id = section.xpath('//w:footerReference')
-        for ref in header_ref_with_id:
-            id = ref.get(tag_id)
-            id_list.append(id)
-        for ref in footer_ref_with_id:
-            id = ref.get(tag_id)
-            id_list.append(id)
-    return id_list
-
-
 def hide_not_highlighted_text(elements):
+    """
+    не используем стандартные методы библиотеки docx,
+    так как с их помощью нельзя скрыть автоматически сгенерированное содержание.
+
+    """
     for element in elements:
         try:
-            rprs = element.findall(tag_rPr)
-            if len(rprs) == 0:
+            rpr_list = element.findall(tag_rPr)
+            if len(rpr_list) == 0:
                 tag_text = element.find(tag_t)
-                rpr = docx.oxml.shared.OxmlElement('w:rPr')
-                rpr.append(docx.oxml.shared.OxmlElement('w:vanish'))
-                tag_text.addprevious(rpr)
+                rpr = docx.oxml.shared.OxmlElement('w:rPr')  # создаем тег rPr
+                rpr.append(docx.oxml.shared.OxmlElement('w:vanish'))  # добавляем в него тег скрытого текста
+                tag_text.addprevious(rpr)  # добавляем новый тег выше тега с текстом
 
-            for rPr in rprs:
-                high = rPr.findall(tag_highlight)
+            for rPr in rpr_list: # если уже есть тег rPr
+                high = rPr.findall(tag_highlight)  # проверяем, есть ли тег, отвечающий за подсветку
                 if len(high) == 0:
-                    rPr.append(docx.oxml.shared.OxmlElement('w:vanish'))
+                    rPr.append(docx.oxml.shared.OxmlElement('w:vanish'))  # если нет, добавляем в него тег скрытого текста
 
-        except AttributeError:  # when there is no text
+        except AttributeError:  # if there is no text
             pass
+
+
+def iterate_footer_header(footer_or_header):
+    """
+    используем методы  docx библиотеки, чтобы проверить весь текст в колонтитулах.
+    работаем с таблицами и с параграфами, которые могут быть в колонтитулах.
+    """
+    for t in footer_or_header.tables:
+        for row in t.rows:
+            for cell in row.cells:
+                for p in cell.paragraphs:
+                    for run in p.runs:
+                        if run.font.highlight_color is None:
+                            run.font.hidden = True
+    for p in footer_or_header.paragraphs:
+        for run in p.runs:
+            if run.font.highlight_color is None:
+                run.font.hidden = True
 
 
 # скрываем невыделенный текст везде кроме колонтитулов
 hide_not_highlighted_text(elements_list)
 
-header_footer_ids = get_ids_headers_footers(sections_list)
+# итерируемся по всем секциям в документе и обрабатываем все три вида верхних и нижних колонтитулов.
+# боковые колонтитулы тоже входят
 
-for id in header_footer_ids:
-    """ вытаскиваем xml с колонтитулами по его id"""
+for section in document.sections:
 
-    header_or_footer_element = document.sections._document_part.rels[id].target_part.element
-
-    h_f_elements = header_or_footer_element.xpath('//w:r')
-    hide_not_highlighted_text(h_f_elements)
+    footers_and_headers = (section.footer, section.even_page_footer, section.first_page_footer,
+                           section.header, section.even_page_header, section.first_page_header)
+    for footer in footers_and_headers:
+        iterate_footer_header(footer)
 
 document.save('./text/result.docx')

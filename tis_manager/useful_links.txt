@@ -9,3 +9,5 @@ https://stackoverflow.com/questions/38210905/iterate-through-table-of-contents-i
 https://stackoverflow.com/questions/31974733/using-python-docxs-document-method/32108705#32108705
 
 https://stackoverflow.com/questions/55885498/attribute-error-with-docx-document-no-attribute-xpath
+
+https://c-rex.net/projects/samples/ooxml/e1/Part4/OOXML_P4_DOCX_pPr_topic_ID0ERIUKB.html?hl=ppr
