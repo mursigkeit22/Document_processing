@@ -12,10 +12,13 @@ These paragraph properties should override any and all conflicting properties
 that are associated with the paragraph in question.
 """
 
-import docx
-from docx import *
+from docx import oxml, Document, opc
 
-document = Document('./text/full.docx')
+try:
+    document = Document('./text/empty.docx')
+except opc.exceptions.PackageNotFoundError:
+    raise Exception("Document is empty or doesn't exist")
+
 # текст документа
 elements_list = document._element.xpath('//w:r')
 # разделы документа (в которых задаются колонтитулы и прочие атрибуты, применяемые ко всему разделу)
@@ -41,14 +44,14 @@ def hide_not_highlighted_text(elements):
             rpr_list = element.findall(tag_rPr)
             if len(rpr_list) == 0:
                 tag_text = element.find(tag_t)
-                rpr = docx.oxml.shared.OxmlElement('w:rPr')  # создаем тег rPr
-                rpr.append(docx.oxml.shared.OxmlElement('w:vanish'))  # добавляем в него тег скрытого текста
+                rpr = oxml.shared.OxmlElement('w:rPr')  # создаем тег rPr
+                rpr.append(oxml.shared.OxmlElement('w:vanish'))  # добавляем в него тег скрытого текста
                 tag_text.addprevious(rpr)  # добавляем новый тег выше тега с текстом
 
             for rPr in rpr_list: # если уже есть тег rPr
                 high = rPr.findall(tag_highlight)  # проверяем, есть ли тег, отвечающий за подсветку
                 if len(high) == 0:
-                    rPr.append(docx.oxml.shared.OxmlElement('w:vanish'))  # если нет, добавляем в него тег скрытого текста
+                    rPr.append(oxml.shared.OxmlElement('w:vanish'))  # если нет, добавляем в него тег скрытого текста
 
         except AttributeError:  # if there is no text
             pass
