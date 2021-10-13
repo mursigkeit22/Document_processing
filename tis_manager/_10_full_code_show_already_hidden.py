@@ -1,5 +1,4 @@
 """
-ВАЖНО: КОГДА КОД МЕНЯЕТ ТЕГИ НАПРЯМУЮ, В НЕКОТОРЫХ СЛУЧАЯХ ИЗ ТЕКСТА ПРОПАДАЮТ ССЫЛКИ (ЕСЛИ ОНИ ТАМ ЕСТЬ)
 <rPr> Structured Document Tag End Character Run Properties
 The <rPr> elements under the tag's properties specify that
 this structured document tag specifies that its start character
@@ -52,6 +51,9 @@ def hide_not_highlighted_text(elements):
             for rPr in rpr_list:  # если уже есть тег rPr, т.е. у параграфа уже есть форматирование, то смотрим на это форматирование:
                 high = rPr.findall(tag_highlight)  # проверяем, есть ли тег, отвечающий за подсветку
                 if len(high) == 0:
+                    already_hidden = rPr.findall(tag_vanish)
+                    print(already_hidden), print(element.find(tag_t).text)
+                    print("----------------")
                     rPr.append(oxml.shared.OxmlElement('w:vanish'))  # если нет, добавляем в него тег скрытого текста #TODO: а если текст уже скрыт???
 
         except AttributeError:  # if there is no text
