@@ -1,6 +1,6 @@
 from openpyxl import load_workbook, Workbook
 
-from prepare_glossary.helper_functions import delete_raw_with_empty_cell
+from prepare_glossary_excel.helper_functions import delete_raw_with_empty_cell
 
 """ 
 колонки в доках должны быть English, Russian, Notes1, Notes2
