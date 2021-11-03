@@ -1,4 +1,5 @@
-from contextlib import redirect_stdout
+import glob
+import os
 from time import sleep
 
 from pywinauto import Application, ElementNotFoundError, MatchError
@@ -9,8 +10,22 @@ from pywinauto.application import ProcessNotFoundError
 - раскладку переключить на англ
 - язык интерфейса нотпада переключить на англ
 - переименовать путь к файлу, чтобы там не было пробелов, скобок и т.п.
-- узнать, как обращаться к кнопкам app.Dialog.print_control_identifiers()
+- узнать, как обращаться к кнопкам можно через app.Dialog.print_control_identifiers()
+- и всё равно через раз нихера не будет работать
 """
+
+
+def get_file_list(folder):
+    file_list = []
+    for filename in glob.iglob(folder + '**/**', recursive=True):
+        if os.path.isfile(filename):
+            file_list.append(filename)
+    return file_list
+
+
+first = get_file_list(r"C:\mein\some_things\тексты\NewMicrosoftWordDocument")
+second = get_file_list(r"C:\mein\some_things\тексты\NewMicrosoftWordDocument2")
+
 try:
     old_app = Application(backend="uia").connect(path=r"C:\Program Files (x86)\Notepad++\notepad++.exe")
     print(old_app.windows())
@@ -29,9 +44,8 @@ app = Application(backend="uia").start(r"C:\Program Files (x86)\Notepad++\notepa
 sleep(1)
 app.window().draw_outline()
 app.window().menu_select("File -> Close all")
-app.window().menu_select("File -> Open")
+for el in first:
+    app.window().menu_select("File -> Open")
 
-app.Dialog['Имя файла:Edit'].type_keys("C:\mein\some_things\тексты\\NewMicrosoftWordDocument2\word\styles.xml").type_keys("{ENTER}")
-# app.Dialog['ОткрытьButton4'].click()
-    # .type_keys(
-    # "{ENTER}")
+    app.Dialog['Имя файла:Edit'].type_keys(el).type_keys("{ENTER}")
+
