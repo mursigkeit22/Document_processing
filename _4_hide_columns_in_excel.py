@@ -1,5 +1,8 @@
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
+"""
+only for columns and rows, not for cells
+"""
 
 
 workbook = load_workbook(filename="work_docs/excel_misha/Microsoft_Excel_Worksheet.xlsx")
