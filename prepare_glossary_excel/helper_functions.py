@@ -5,6 +5,7 @@ def delete_raw_with_empty_cell(work_sheet, column_num):
     """ Column numbers are 1, 2, 3 ... Not 0, 1, 2, 3!!!"""
     for rowNum in range(work_sheet.max_row, 0, -1):
         if work_sheet.cell(row=rowNum, column=column_num).value is None:
+            print("deleting raw", rowNum)
             work_sheet.delete_rows(rowNum)
 
 
