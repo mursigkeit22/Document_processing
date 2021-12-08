@@ -1,4 +1,4 @@
-from nltk.translate.bleu_score import sentence_bleu, corpus_bleu
+from nltk.translate.bleu_score import sentence_bleu
 from openpyxl import load_workbook
 
 workbook = load_workbook(filename="work_docs/blue/_1.xlsx")
