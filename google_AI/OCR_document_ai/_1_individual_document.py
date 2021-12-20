@@ -79,7 +79,7 @@ def get_text(doc_element: dict, document: dict):
     return response
 
 
-file_path = r'..\work_docs\Untitled1.pdf'
+file_path = r''
 
 # create or clean up file for recognized text
 with open("results_single.txt", "w", encoding="utf-8") as f:

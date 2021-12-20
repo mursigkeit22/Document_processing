@@ -136,7 +136,7 @@ def get_only_name(blob_name):
 # NB: Сначала нужно загрузить все файлы в google cloud storage https://console.cloud.google.com/storage
 # В root_dir нужно указать путь к папке с файлами на локальном компьютере, чтобы извлечь их имена.
 # Nested folders are ignored
-root_dir = "../work_docs"
+root_dir = ""
 filenames = [f for f in listdir(root_dir) if isfile(join(root_dir, f))]
 
 # create folder for results if not exists
