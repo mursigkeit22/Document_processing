@@ -256,5 +256,8 @@ excel_docs/
 ready_excel_docs/
 text/
 work_docs/
+credentials/
+results/
+
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm
