@@ -1,6 +1,3 @@
-"""
-see example config file for all credentials info
-"""
 import os
 
 from google_AI.credentials import config
@@ -8,14 +5,6 @@ from os import listdir
 from os.path import isfile, join
 from google.cloud import documentai_v1 as documentai
 from google.cloud import storage
-
-"""
-NB: Перед распознаванием следует почистить google storage от результатов прошлых распознаваний.
-Если для одного файла распознавание запускается несколько раз, 
-то в google storage каждый раз создается новая вложенная папка с результатами распознавания в формате .json, 
-и при следующем запуске того же файла в .txt запишутся данные из всех джейсонов с совпадающим названием
-(т.е. произойдет дублирование).
-"""
 
 project_id = config.project_id
 location = config.location
@@ -27,55 +16,17 @@ result_local_folder = config.result_local_folder
 gcs_output_uri = fr"gs://{bucket_name}"  # name of your bucket in cloud storage in format "gs://name-of-bucket"
 gcs_output_uri_prefix = config.result_bucket_folder
 
-
-def batch_process_documents(
-        project_id,
-        location,
-        processor_id,
-        gcs_input_uri,
-        gcs_output_uri,
+def get_files(
         gcs_output_uri_prefix,
         filename,
-        timeout: int = 600,
-):
-    # You must set the api_endpoint if you use a location other than 'us', e.g.:
-    opts = {}
-    if location == "eu":
-        opts = {"api_endpoint": "eu-documentai.googleapis.com"}
-
-    client = documentai.DocumentProcessorServiceClient(client_options=opts)
-
-    destination_uri = f"{gcs_output_uri}/{gcs_output_uri_prefix}/{filename}/"
-
-    gcs_documents = documentai.GcsDocuments(
-        documents=[{"gcs_uri": gcs_input_uri, "mime_type": "application/pdf"}]
-    )
-    # 'mime_type' can be 'application/pdf', 'image/tiff',
-    # and 'image/gif', or 'application/json'
-
-    input_config = documentai.BatchDocumentsInputConfig(gcs_documents=gcs_documents)
-
-    # Where to write results
-    output_config = documentai.DocumentOutputConfig(
-        gcs_output_config={"gcs_uri": destination_uri}
-    )
-
-    name = f"projects/{project_id}/locations/{location}/processors/{processor_id}"
-    request = documentai.types.document_processor_service.BatchProcessRequest(
-        name=name, input_documents=input_config, document_output_config=output_config,
-    )
-
-    operation = client.batch_process_documents(request)
-
-    # Wait for the operation to finish
-    operation.result(timeout=timeout)
-
+        ):
     # Results are written to GCS. Find output files:
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket_name)
     blob_list = list(bucket.list_blobs(
-        prefix=gcs_output_uri_prefix))  # находит всё, что есть в папке gcs_output_uri_prefix/, ищет во вложенных папках тоже.
+        prefix=f'{gcs_output_uri_prefix}/{filename[:-4]}'))  # находит всё, что есть в папке gcs_output_uri_prefix/, ищет во вложенных папках тоже.
     count = 0
+    print("blob_list: ", blob_list)
 
     for i, blob in enumerate(blob_list):
         # If JSON file, download the contents of this blob as a bytes object.
@@ -83,7 +34,7 @@ def batch_process_documents(
             # берем только джейсонки, названия которых совпадают с оригинальным файлом.
             # названия файлов в формате "original_file_name-0.json"
             only_name = get_only_name(blob.name)
-            if filename == only_name:
+            if filename[:-4] == only_name:
                 count += 1
                 print(f"Fetched part {count}")
                 blob_as_bytes = blob.download_as_bytes()
@@ -105,8 +56,9 @@ def batch_process_documents(
                         with open(fr'{result_local_folder}\{filename}.txt', 'a', encoding='utf-8') as f:
                             f.write(paragraph_text)
 
+    # Extract shards from the text field
 
-# Extract shards from the text field
+
 def get_text(doc_element: dict, document: dict):
     """
     Document AI identifies form fields by their offsets
@@ -133,20 +85,16 @@ def get_only_name(blob_name):
     return blob_name[name_start + 1:postfix_pos]
 
 
-# NB: Сначала нужно загрузить все файлы в google cloud storage https://console.cloud.google.com/storage
-# В root_dir нужно указать путь к папке с файлами на локальном компьютере, чтобы извлечь их имена.
-# Nested folders are ignored
 root_dir = "../work_docs"
 filenames = [f for f in listdir(root_dir) if isfile(join(root_dir, f))]
 
 # create folder for results if not exists
 os.makedirs(result_local_folder, exist_ok=True)
 
-for filename in filenames:
-    print("Currently processing: ", filename)
+for file_name in filenames:
+    print("Currently processing: ", file_name)
     # create new file or clean up old one, if we have already processed a document with the same name
-    with open(fr'{result_local_folder}\{filename[:-4]}.txt', 'w', encoding='utf-8') as f:
+    with open(fr'{result_local_folder}\{file_name}.txt', 'w', encoding='utf-8') as f:
         pass
-    gcs_input_uri = fr"gs://{bucket_name}/{filename}"  # path to file we want to process in google storage
-    batch_process_documents(project_id, location, processor_id, gcs_input_uri, gcs_output_uri, gcs_output_uri_prefix,
-                            filename[:-4])
+    gcs_input_uri = fr"gs://{bucket_name}/{file_name}"  # path to file we want to process in google storage
+    get_files( gcs_output_uri_prefix, file_name)

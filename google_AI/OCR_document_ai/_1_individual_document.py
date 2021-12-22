@@ -2,13 +2,13 @@
 see example config file for all credentials info
 """
 
-from google_AI.credentials import _0_config
+from google_AI.credentials import config
 from google.cloud import documentai_v1 as documentai
 
 
-project_id = _0_config.project_id
-location = _0_config.location
-processor_id = _0_config.processor_id
+project_id = config.project_id
+location = config.location
+processor_id = config.processor_id
 
 
 def process_document_sample(
